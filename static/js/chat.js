@@ -16,13 +16,13 @@ $(document).ready(function() {
     if (!window.console) window.console = {};
     if (!window.console.log) window.console.log = function() {};
 
-    $("#messageform").on("submit", function() {
-        newMessage($(this));
-        return false;
+    console.log('adf');
+    $("#messageform button").on("click", function() {
+        newMessage();
     });
     $("#messageform").on("keypress", function(e) {
         if (e.keyCode == 13) {
-            newMessage($(this));
+            newMessage();
             return false;
         }
     });
@@ -30,16 +30,15 @@ $(document).ready(function() {
     updater.poll();
 });
 
-function newMessage(form) {
+function newMessage() {
+    var form = $("#messageform");
     var message = form.formToDict();
     var submit = form.find("input[type=submit]");
     submit.disable();
     $.postJSON("/a/message/new", message, function(response) {
         updater.showMessage(response);
-        if (message.id) {
-            form.parent().remove();
-        } else {
-            form.find("input[type=text]").val("").select();
+        if (response.id) {
+            form.find("textarea").val("").select();
             submit.enable();
         }
     });

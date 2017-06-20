@@ -8,19 +8,15 @@
 <body>
     <div id="body" class="pure-g" >
       <div id="inbox" class="pure-u-1" >
-        {% for message in messages %}
-          {% module Template("message.html", message=message) %}
-        {% end %}
+
       </div>
       <div id="input" class="pure-u-1" >
-        <form action="/a/message/new" class="pure-form" method="post" id="messageform">
+        <form class="pure-form" id="messageform">
             <fieldset class="pure-group">
-                <input type="hidden" name="next" value="{{ request.path }}">
                 <textarea class="pure-input-1-2" name="body" placeholder="Type in message">
                 </textarea>
-              {% module xsrf_form_html() %}
             </fieldset>
-            <input type="submit" class="pure-button pure-input-1-2 pure-button-primary" value="{{ _("Post") }}">
+            <button type="button" class="pure-button pure-input-1-2 pure-button-primary"  >Post</button>
         </form>
       </div>
     </div>

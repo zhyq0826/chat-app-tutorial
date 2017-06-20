@@ -16,31 +16,12 @@ import turbo.register
 import turbo.app
 import turbo.log
 
-turbo.app_config.web_application_setting.update(setting.WEB_APPLICATION_SETTING)
+
+turbo.app_config.web_application_setting.update(
+    setting.WEB_APPLICATION_SETTING)
+
 
 define("port", default=8888, type=int)
-
-
-class MixinHandler(turbo.app.BaseHandler):
-    pass
-
-
-class BaseHandler(MixinHandler):
-
-    _session = None
-
-    def initialize(self):
-        super(BaseHandler, self).initialize()
-        self._params = self.parameter
-        self._skip = 0
-        self._limit = 0
-
-    def prepare(self):
-        super(BaseHandler, self).prepare()
-        self._skip = abs(self._params['skip']) if self._params.get(
-            'skip', None) else 0
-        self._limit = abs(self._params['limit']) if self._params.get(
-            'limit', None) else 20
 
 
 class MessageBuffer(object):
@@ -65,7 +46,7 @@ class MessageBuffer(object):
             if new_count:
                 result_future.set_result(self.cache[-new_count:])
                 return result_future
-        self.waiters.add(result_future)
+        self.waiters.add(result_future)  # 新客户端连接进来之后加入消息等待列表
         return result_future
 
     def cancel_wait(self, future):
@@ -86,13 +67,13 @@ class MessageBuffer(object):
 GLOBAL_MESSAGE_BUFFER = MessageBuffer()
 
 
-class MainHandler(BaseHandler):
+class MainHandler(turbo.app.BaseHandler):
 
     def get(self):
         self.render("index.html", messages=GLOBAL_MESSAGE_BUFFER.cache)
 
 
-class MessageNewHandler(BaseHandler):
+class MessageNewHandler(turbo.app.BaseHandler):
 
     def post(self):
         message = {
@@ -102,15 +83,12 @@ class MessageNewHandler(BaseHandler):
         # to_basestring is necessary for Python 3's json encoder,
         # which doesn't accept byte strings.
         message["html"] = tornado.escape.to_basestring(
-            self.render_string("message.html", message=message))
-        if self.get_argument("next", None):
-            self.redirect(self.get_argument("next"))
-        else:
-            self.write(message)
+            '<div class="message" id="m%s">%s</div>' % (message['id'], message['body']))
+        self.write(message)
         GLOBAL_MESSAGE_BUFFER.new_messages([message])
 
 
-class MessageUpdatesHandler(BaseHandler):
+class MessageUpdatesHandler(turbo.app.BaseHandler):
 
     @gen.coroutine
     def post(self):

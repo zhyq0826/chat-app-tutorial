@@ -16,7 +16,7 @@ sys.path.append(SERVER_DIR)
 WEB_APPLICATION_SETTING = ObjectDict(
     static_path=os.path.join(SERVER_DIR, "static"),
     template_path=os.path.join(SERVER_DIR, "templates"),
-    xsrf_cookies=True,
+    xsrf_cookies=False,
     cookie_secret="3%$334ma?asdf2987^%23&^%$2",
     debug=True,
 )
