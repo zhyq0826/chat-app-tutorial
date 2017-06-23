@@ -114,4 +114,5 @@ turbo.register.register_group_urls('', [
 
 if __name__ == '__main__':
     tornado.options.parse_command_line()
+    print("open browser http://localhost:8888")
     turbo.app.start(options.port)

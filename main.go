@@ -78,6 +78,7 @@ func main() {
 	http.HandleFunc("/a/message/updates", MessageUpdatesHandler)
 	fs := http.FileServer(http.Dir("static/"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	log.Println("open browser http://localhost:8889")
 	err := http.ListenAndServe(":8889", nil) //设置监听的端口
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
