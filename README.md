@@ -17,3 +17,10 @@ Golang
 go get github.com/satori/go.uuid
 make go
 ```
+
+Nodejs
+
+```
+npm install
+make js
+```
