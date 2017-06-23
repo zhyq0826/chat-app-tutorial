@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/satori/go.uuid"
-	"html"
+	// "html"
 	"html/template"
 	"log"
 	"net/http"
 )
+
+type MessagesMap map[string][]Message
 
 type MessageBuffer struct {
 	Waiters []*Client
@@ -19,13 +21,16 @@ func (m *MessageBuffer) NewWaiter(c *Client) {
 }
 
 func (m *MessageBuffer) NewMessage(c *Message) {
+	d := make(MessagesMap)
+	message_list := []Message{*c} //提取指针指向的 message
+	d["messages"] = message_list
 	for _, w := range m.Waiters {
 		if w != nil {
-			jsonMsg, _ := json.Marshal(c)
-			w.c <- jsonMsg
+			jsonMsg, _ := json.Marshal(d)
+			w.c <- jsonMsg //向等待的连接发送消息
 		}
 	}
-	m.Waiters = make([]*Client, 10)
+	m.Waiters = make([]*Client, 10) //清空 waiterrs
 }
 
 type Client struct {
@@ -51,7 +56,7 @@ func MessageNewHandler(w http.ResponseWriter, r *http.Request) {
 		Body: r.FormValue("body"),
 	}
 	htmlMsg := fmt.Sprintf(`<div class="message" id="m%s">%s</div>`, message.Id, message.Body)
-	message.Html = html.EscapeString(htmlMsg)
+	message.Html = htmlMsg
 	messageBuffer.NewMessage(&message)
 }
 

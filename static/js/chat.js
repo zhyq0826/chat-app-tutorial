@@ -16,7 +16,6 @@ $(document).ready(function() {
     if (!window.console) window.console = {};
     if (!window.console.log) window.console.log = function() {};
 
-    console.log('adf');
     $("#messageform button").on("click", function() {
         newMessage();
     });
@@ -33,14 +32,11 @@ $(document).ready(function() {
 function newMessage() {
     var form = $("#messageform");
     var message = form.formToDict();
-    var submit = form.find("input[type=submit]");
+    var submit = form.find("button");
     submit.disable();
-    $.postJSON("/a/message/new", message, function(response) {
-        updater.showMessage(response);
-        if (response.id) {
-            form.find("textarea").val("").select();
-            submit.enable();
-        }
+    $.postJSON("/a/message/new", message, function() {
+        form.find("textarea").val("").select();
+        submit.enable();
     });
 }
 
@@ -51,12 +47,19 @@ function getCookie(name) {
 
 jQuery.postJSON = function(url, args, callback) {
     args._xsrf = getCookie("_xsrf");
-    $.ajax({url: url, data: $.param(args), dataType: "text", type: "POST",
+    $.ajax({
+            url: url,
+            data: $.param(args),
+            dataType: "text",
+            type: "POST",
             success: function(response) {
-        if (callback) callback(eval("(" + response + ")"));
-    }, error: function(response) {
-        console.log("ERROR:", response)
-    }});
+                if(callback){
+                    callback(response ? JSON.parse(response) : null);
+                }
+        }, error: function(response) {
+            console.log("ERROR:", response)
+        }
+    });
 };
 
 jQuery.fn.formToDict = function() {
@@ -88,16 +91,23 @@ var updater = {
     cursor: null,
 
     poll: function() {
-        var args = {"_xsrf": getCookie("_xsrf")};
+        var args = {
+            "_xsrf": getCookie("_xsrf")
+        };
         if (updater.cursor) args.cursor = updater.cursor;
-        $.ajax({url: "/a/message/updates", type: "POST", dataType: "text",
-                data: $.param(args), success: updater.onSuccess,
-                error: updater.onError});
+        $.ajax({
+            url: "/a/message/updates",
+            type: "POST",
+            dataType: "text",
+            data: $.param(args),
+            success: updater.onSuccess,
+            error: updater.onError
+        });
     },
 
     onSuccess: function(response) {
         try {
-            updater.newMessages(eval("(" + response + ")"));
+            updater.newMessages(JSON.parse(response));
         } catch (e) {
             updater.onError();
             return;
@@ -114,7 +124,6 @@ var updater = {
 
     newMessages: function(response) {
         if (!response.messages) return;
-        updater.cursor = response.cursor;
         var messages = response.messages;
         updater.cursor = messages[messages.length - 1].id;
         console.log(messages.length, "new messages, cursor:", updater.cursor);
