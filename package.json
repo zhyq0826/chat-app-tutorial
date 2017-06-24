@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/zhyq0826/chat-app-tutorial#readme",
   "dependencies": {
+    "bluebird": "^3.5.0",
     "body-parser": "^1.17.2",
     "express": "^4.15.2",
     "nunjucks": "^3.0.1",
