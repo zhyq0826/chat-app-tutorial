@@ -44,16 +44,12 @@ app.get('/a/message/new', function(req, res){
         'body': req.body.body
     }
     message['html'] = '<div class="message" id="m'+message.id+'">'+message.body+'</div>';
-
-
+    messageBuffer.newMessage([message])
 });
 
 app.get('/a/message/updates', function(req, res){
+    
     res.set('Content-Type', 'application/json');
-    res.send({
-        'messages': {
-        }
-    })
 });
 
 var server = app.listen(3000, function(){
